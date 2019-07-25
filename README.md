@@ -16,3 +16,6 @@ mkdir kinova_rr_bridge && cd kniova_rr_bridge
 ```
 
 2. Refer the sample in this project to create [XML file]() and [camke file]() in kinova_rr_bridge.
+
+## Fiducials
+* This package provides a system that allows a robot to determine its position and orientation by looking at a number of fiducial markers (similar to QR codes) that are fixed in the environment of the robot. Refer [this](http://wiki.ros.org/fiducials) for detail inforamtion
