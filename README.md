@@ -1,11 +1,12 @@
 # Table of Contents 
-- [Moving Kinova](#Moving Kinova) 
-  - [Robot Raconteur](#Robot Raconteur)
+- [Moving-Kinova](#Moving-Kinova) 
+  - [Robot-Raconteur](#Robot-Raconteur)
+    -[Setup](#Setup)
 
-# Moving Kinova
+# Moving-Kinova
 ROS packages for Kinova robotic arms and its moving base
 
-## Robot Raconteur
+## Robot-Raconteur
 * a middleware for users to control kinova arm
 ### Setup
 1. Initialize robot raconteur package in source
