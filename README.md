@@ -1,7 +1,7 @@
 # Table of Contents 
 - [Moving-Kinova](#Moving-Kinova) 
-  - [Robot-Raconteur](#Robot-Raconteur)  
-    -[Setup](#Setup) 
+  - [Robot-Raconteur](#Robot-Raconteur)
+      -[Setup](#Setup) 
 
 # Moving-Kinova
 ROS packages for Kinova robotic arms and its moving base
