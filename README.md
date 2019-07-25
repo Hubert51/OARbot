@@ -1,6 +1,6 @@
 # Table of Contents 
 - [Moving-Kinova](#Moving-Kinova) 
-  - [Robot-Raconteur](#Robot-Raconteur)
+  - [Robot-Raconteur](#Robot-Raconteur)  
       -[Setup](#Setup) 
 
 # Moving-Kinova
