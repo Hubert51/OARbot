@@ -1,0 +1,8 @@
+D1 : 0.2755 # Distance Base to Shoulder
+D2 : 0.4100 # Upper arm Length (shoulder to elbow)
+D3 : 0.2073 # Forearm Length (Elbow to wrist)
+D4 : 0.0741 # First wrist length (center of actuator 4 to center of actuator 5)
+D5 : 0.0741 # Second wrist length (center of actuator 5 to center of actuator 6)
+D6 : 0.1600 # Wrist to center of the hand
+e2 : 0.0098 # Joint 3-4 lateral offset
+

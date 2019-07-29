@@ -1,0 +1,27 @@
+<launch>
+    <!-- Kinova Arm Bring Up -->
+    <include file="$(find kinova_bringup)/launch/kinova_robot.launch">
+    </include>
+
+    <!-- Realsense Camera-->
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    </include>
+
+    <!-- Camera-EndEffector Transform  -->
+    <include file="$(find camera_tf2)/launch/tf_camera_node.launch">
+    </include> 
+
+    <!-- Aruco Tag -->
+    <include file="$(find assistiverobot)/launch/aruco_test.launch">
+    </include>
+    
+    <!-- Marker-Goal Transform  -->
+    <include file="$(find goal_tf2)/launch/tf_goal_node.launch">
+    </include>
+    
+    <!-- Marker-Goal Transform BASE -->
+    <include file="$(find goal_base_tf2)/launch/tf_goal_base_node.launch">
+    </include>
+    
+    
+</launch>

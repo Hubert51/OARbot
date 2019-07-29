@@ -1,0 +1,10 @@
+<launch>
+	<arg name="pkg_name" value="goal_tf2"/>
+	<arg name="node_name" default="goal_listener_leave_node"/>		
+	<arg name="param_file_name" default="default" doc="Specify a param file. ex:megaman"/>
+	
+	<remap from="tf2_goal_listener/pose_vel_cmd" to="/j2n6s300_driver/in/cartesian_velocity" />
+    <node pkg="$(arg pkg_name)" type="$(arg node_name).py" name="$(arg node_name)" output="screen">
+    </node>
+    
+</launch>

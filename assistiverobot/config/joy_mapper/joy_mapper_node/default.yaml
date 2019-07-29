@@ -1,0 +1,8 @@
+# Parameters for joy_mapper/joy_mapper
+speed_gain: 0.364425
+omega_gain: 0.848960
+linear_vel_gain: 0.2 #max linear velocity in m/s
+angular_vel_gain: 1.07 # max angular velocity in rad/s
+finger_maxTurn: 7300  # max thread rotation for one finger
+finger_move_gain: 1000 # Max Increment in position of finger per command 
+
