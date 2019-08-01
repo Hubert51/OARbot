@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 import rospy
 import numpy as np
 import math
@@ -28,6 +28,10 @@ from cv_bridge import CvBridge, CvBridgeError
 from datetime import datetime
 
 from scipy import stats
+import matplotlib.pyplot as plt
+import cv2.aruco as aruco
+
+
 
 kinova_servicedef="""
 #Service to provide simple interface to Baxter
@@ -63,7 +67,11 @@ object KinovaCamera
     property uint8 camera_open
 
     # camera control functions
+    function double[] getOri()
+    function double[] getPos()
     function double getDepth(double[] bbox)
+    function void testFunction()
+    function void ARtag_Detection()
 
     # function void openCamera()
     # function void closeCamera()
@@ -93,10 +101,10 @@ data = None
 class KinovaCamera(object):
     """docstring for Kinova"""
     def __init__(self):
-        rospy.init_node('camera', anonymous = True)
         self.tag_address = "/aruco_single/pose"
         self.color_address = "/camera/color/image_raw"
         self.depth_address = "/camera/depth/image_rect_raw"
+        self.depth_address = "/camera/aligned_depth_to_color/image_raw"
 
         self.image = None
         self.depth_image = None
@@ -109,6 +117,11 @@ class KinovaCamera(object):
 
         self._ee_pos = [0]*3
         self._ee_ori = [0]*4
+
+        # Initialize ARtag detection
+        self._aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
+        self._arucoParams = aruco.DetectorParameters_create()
+        self._markerSize = 0.061
 
         self._t_effector = threading.Thread(target=self.endeffector_worker)
         self._t_effector.daemon = True
@@ -144,14 +157,18 @@ class KinovaCamera(object):
         print self.depth_image.shape
 
         # the depth img and color img can not be aligned well. So add the offset.
-        sub_depth = self.depth_image[bbox[0]-50:bbox[2]+bbox[0]-50, bbox[1]-10:bbox[3]+bbox[1]-15]
+        '''
+        bbox[0]: width initial point
+        bbox[1]: height initial point
+        '''
+        sub_depth = self.depth_image[bbox[1]:bbox[3]+bbox[3], bbox[0]:bbox[2]+bbox[0]]
         sub_img = self.image[bbox[1]:bbox[3]+bbox[1], bbox[0]:bbox[2]+bbox[0]]
 
         # check the area location in depth img respect the coordinates in color img
         # cv2.rectangle(self.depth_image,(bbox[0],bbox[1]),(bbox[0]+bbox[2],bbox[1]+bbox[3]),(0,255,0),5)
 
         # for debug
-        cv2.imwrite("sub_depth_img.png", sub_depth)
+        cv2.imwrite("sub_depth_img1.png", sub_depth)
         cv2.imwrite("depth_img.png", self.depth_image)
         # cv2.imshow("test", sub_depth)
         # cv2.imshow("test2", self.depth_image)
@@ -163,10 +180,100 @@ class KinovaCamera(object):
         print sub_depth.shape
         sub_depth = np.reshape(sub_depth, sub_depth.shape[0] * sub_depth.shape[1])
         print sub_depth.shape
+        sub_depth = sub_depth[np.where( (sub_depth>100)&(sub_depth<400) )]
         result = np.median(sub_depth)
         print sub_depth
         print result
         return result
+
+    # function that AR tag detection uses
+    def getObjectPose(self, corners):
+        with self._lock:
+            camMatrix = numpy.reshape(self._camera_intrinsics.K, (3, 3))
+            
+            distCoeff = numpy.zeros((1, 5), dtype=numpy.float64)
+            distCoeff[0][0] = self._camera_intrinsics.D[0]
+            distCoeff[0][1] = self._camera_intrinsics.D[1]
+            distCoeff[0][2] = self._camera_intrinsics.D[2]
+            distCoeff[0][3] = self._camera_intrinsics.D[3]
+            distCoeff[0][4] = self._camera_intrinsics.D[4]
+
+            # print "cameramatrix: ", camMatrix
+            # print "distortion coefficient: ", distCoeff
+
+            # AR Tag Dimensions in object frame
+            objPoints = numpy.zeros((4, 3), dtype=numpy.float64)
+            # (-1, +1, 0)
+            objPoints[0,0] = -1*self._markerSize/2.0 # -1
+            objPoints[0,1] = 1*self._markerSize/2.0 # +1
+            objPoints[0,2] = 0.0
+            # (+1, +1, 0)
+            objPoints[1,0] = self._markerSize/2.0 # +1
+            objPoints[1,1] = self._markerSize/2.0 # +1
+            objPoints[1,2] = 0.0
+            # (+1, -1, 0)
+            objPoints[2,0] = self._markerSize/2.0 # +1
+            objPoints[2,1] = -1*self._markerSize/2.0 # -1
+            objPoints[2,2] = 0.0
+            # (-1, -1, 0)
+            objPoints[3,0] = -1*self._markerSize/2.0 # -1
+            objPoints[3,1] = -1*self._markerSize/2.0 # -1
+            objPoints[3,2] = 0.0
+
+            # Get each corner of the tags
+            imgPoints = numpy.zeros((4, 2), dtype=numpy.float64)
+            for i in range(4):
+                imgPoints[i, :] = corners[0, i, :]
+
+            # SolvePnP
+            retVal, rvec, tvec = cv2.solvePnP(objPoints, imgPoints, camMatrix, distCoeff)
+            Rca, b = cv2.Rodrigues(rvec)
+            Pca = tvec
+
+            # print "pca, rca: ", Pca, Rca
+
+            return [Pca, Rca]
+
+
+    def ARtag_Detection(self):
+        # if not self.camera_open:
+        #     self.openCamera()
+        print "Detecting AR tags..."
+        print self.image.shape
+        currentImage = self.image[:,:,:]
+         
+        # imageData = numpy.reshape(imageData, (800, 1280, 4))
+        gray = cv2.cvtColor(currentImage, cv2.COLOR_BGRA2GRAY)
+
+        corners, ids, rejected = aruco.detectMarkers(gray, self._aruco_dict, parameters=self._arucoParams) 
+        print ids
+        if ids is not None:
+            Tmat = []
+            IDS = []
+            detectioninfo = RR.RobotRaconteurNode.s.NewStructure("KinovaCamera_interface.ARtagInfo")
+            for anid in ids:
+                IDS.append(anid[0])
+            for corner in corners:
+                pc, Rc = self.getObjectPose(corner) 
+                # here switch the position vector in the matrix
+                Tmat.extend([   Rc[0][0],   Rc[1][0],   Rc[2][0],   0.0,
+                                Rc[0][1],   Rc[1][1],   Rc[2][1],   0.0,
+                                Rc[0][2],   Rc[1][2],   Rc[2][2],   0.0,
+                                pc[1],      pc[0],      pc[2],      1.0])
+
+            detectioninfo.tmats = Tmat
+            detectioninfo.ids = IDS
+            return detectioninfo
+    def testFunction(self):
+        depth_img = np.reshape(self.depth_image, self.depth_image.shape[0] * self.depth_image.shape[1])
+        depth_img = depth_img[np.where((depth_img>0) & (depth_img<500) )]
+        hist, bin_edges = np.histogram(depth_img, density=True)
+        _ = plt.hist(depth_img, bins='auto')  # arguments are passed to np.histogram
+        plt.title("Histogram with 'auto' bins")
+        # Text(0.5, 1.0, "Histogram with 'auto' bins")
+        plt.show()
+
+
 
 
 
@@ -235,6 +342,7 @@ class KinovaCamera(object):
 
 def main(argv):
     # parse command line arguments
+    rospy.init_node('camera', anonymous = True)
     parser = argparse.ArgumentParser(description='Initialize Baxter moveit module.')
     parser.add_argument('--port', type=int, default = 0,
                     help='TCP port to host service on (will auto-generate if not specified)')
