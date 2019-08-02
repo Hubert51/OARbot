@@ -2,7 +2,7 @@
 % % videoLabeler('output2.mp4')
 % 
 % % training
-% load('train_data2.mat')
+% load('label_food_water_in_fridge.mat')
 % foodGroundTruth = selectLabels(gTruth,'food');
 % %box2GroundTruth = selectLabels(gTruth,'Box2');
 % 
@@ -33,29 +33,30 @@
 %   'MaxEpochs', 10);
 % 
 % rcnn = trainRCNNObjectDetector(trainingFood, layers, options, 'NegativeOverlapRange', [0 0.3]);
+% 
+% load('rcnn_model_water.mat')
+% rcnn_water = rcnn;
+% load('rcnn_model.mat')
+% rcnn_food = rcnn;
+% load('rcnn_food_water.mat')
+% rcnn_food_water;
+% camera = RobotRaconteur.Connect('tcp://localhost:2345/KinovaCameraServer/Camera');
+% robotArm = RobotRaconteur.Connect('tcp://localhost:4567/KinovaJointServer/Kinova');
+load('rcnn_model_water_food_in_fridge.mat')
+rcnn_model_water_food_in_fridge = rcnn;
+img = imread('test_data.png');
+% img = imread('../test_data/test6.png');
 
-load('rcnn_model_water.mat')
-rcnn_water = rcnn;
-load('rcnn_model.mat')
-rcnn_food = rcnn;
-load('rcnn_food_water.mat')
-rcnn_food_water;
-camera = RobotRaconteur.Connect('tcp://localhost:2345/KinovaCameraServer/Camera');
-robotArm = RobotRaconteur.Connect('tcp://localhost:4567/KinovaJointServer/Kinova');
+[bbox, score, label] = detect(rcnn, img, 'MiniBatchSize', 32);
+[score, idx] = max(score);
 
-% img = imread('train_data/output00001.png');/
-% % img = imread('../test_data/test6.png');
-% 
-% [bbox, score, label] = detect(rcnn, img, 'MiniBatchSize', 32);
-% [score, idx] = max(score);
-% 
-% bbox = bbox(idx, :);
-% annotation = sprintf('%s: (Confidence = %f)', label(idx), score);
-% 
-% detectedImg = insertObjectAnnotation(img, 'rectangle', bbox, annotation);
-% 
-% figure
-% imshow(detectedImg)
+bbox = bbox(idx, :);
+annotation = sprintf('%s: (Confidence = %f)', label(idx), score);
+
+detectedImg = insertObjectAnnotation(img, 'rectangle', bbox, annotation);
+
+figure
+imshow(detectedImg)
 
 % mode1: resolution is  960 * 600
 
