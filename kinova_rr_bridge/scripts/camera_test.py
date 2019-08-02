@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 import roslib
 # roslib.load_manifest('baxter_rr_bridge')
 from cv_bridge import CvBridge, CvBridgeError
@@ -32,12 +32,12 @@ def set_imagedata(msg):
 if __name__ == '__main__':
     rospy.init_node('baxter_cameras', anonymous = True)
     image_sub = rospy.Subscriber("/camera/color/image_raw", Image, set_imagedata) 
-    output = "output_water2.mp4"
+    output = "water_food_meeting_demo_in_fridge.mp4"
     while 1:
         if cv2_img is not None:
             height, width, channels = cv2_img.shape
             fourcc = cv2.VideoWriter_fourcc(*'mp4v') # Be sure to use lower case
-            out = cv2.VideoWriter(output, fourcc, 20.0, (width, height))
+            out = cv2.VideoWriter(output, fourcc, 30.0, (width, height))
             break
 
     # The following function is to set camera parameters manually
@@ -55,4 +55,3 @@ if __name__ == '__main__':
         # time.sleep(.2)
     out.release()
     cv2.destroyAllWindows()
-
