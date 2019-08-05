@@ -18,9 +18,8 @@ second_ori = init_ori;
 robotArm.cartesian_pose_client(init_pos, init_ori, 0);
 init = 1;
 
-camera_shift = 0.015;
-height_shift = 0.08;
 
+%%
 while 1
     robotArm.closeFinger([0.0; 0.0; 0.0])
 
@@ -47,7 +46,7 @@ while 1
     else
         if init == 1
             debug_depth = -camera.getDepth(bbox')/1000; 
-            trans = objLocalization(rcnn, bbox) + [camera_shift; -camera.getDepth(bbox')/1000+0.004; height_shift];
+            trans = objLocalization(rcnn, bbox) ;
 %             center = bbox(1) + bbox(3)/2 
             robotArm.cartesian_pose_client(trans, init_ori, 1);
             % robotArm.cartesian_pose_client([0; -camera.getDepth(bbox')/1000+0.004; 0], init_ori, 1);
