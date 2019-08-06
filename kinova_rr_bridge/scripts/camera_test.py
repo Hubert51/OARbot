@@ -32,7 +32,7 @@ def set_imagedata(msg):
 if __name__ == '__main__':
     rospy.init_node('baxter_cameras', anonymous = True)
     image_sub = rospy.Subscriber("/camera/color/image_raw", Image, set_imagedata) 
-    output = "water_food_meeting_demo_in_fridge.mp4"
+    output = "3objects.mp4"
     while 1:
         if cv2_img is not None:
             height, width, channels = cv2_img.shape
