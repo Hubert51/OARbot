@@ -34,10 +34,10 @@ function [bbox] = objDetection(model, iteration)
             imshow(img)
             count = count + 1;
             bbox = bbox + bboxes(idx, : );
-%         annotation = sprintf('%s: (Confidence = %f)', label(idx), score);
+%           annotation = sprintf('%s: (Confidence = %f)', label(idx), score);
 %         img = insertObjectAnnotation(img, 'rectangle', bbox, annotation);
 % 
-%         imshow(img)
+         % imshow(img)
         end
     end
     if count >= iteration/3
@@ -47,8 +47,9 @@ function [bbox] = objDetection(model, iteration)
     end
     annotation = sprintf('%s: (Confidence = %f)', label(idx), final_score/count);
     img = insertObjectAnnotation(img, 'rectangle', bbox, annotation);
-    drawnow
+    
     imshow(img)
+    drawnow
 end
 
 %     while ~(bbox(3) > 50 && bbox(4) > 50)
