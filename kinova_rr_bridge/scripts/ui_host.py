@@ -129,6 +129,9 @@ class KinovaUI(object):
             if index == 0 and value < -0.5 :
                 self.last_time = time.time()
                 return 2
+            elif index == 0 and value > 0.5 :
+                self.last_time = time.time()
+                return -2
             elif index == 1:
                 self.last_time = time.time()
                 if value < -0.5:
