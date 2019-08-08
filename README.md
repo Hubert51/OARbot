@@ -36,3 +36,12 @@ sudo apt-get install ros-kinetic-usb-cam ros-kinetic-aruco-ros
 ```
 sudo apt-get install ros-kinetic-fiducials
 ```
+
+## Moveit
+* Official supported ros version is indego in ubuntu14.04. This is [documentation](https://github.com/Kinovarobotics/kinova-ros/wiki/MoveIt). If you want to use moveit in kinetic in ubuntu16.04. Some changes need to be applied. The scripts required to use moveit are 
+```
+roslaunch kinova_bringup kinova_robot.launch kinova_robotType:=*robot_type*  
+roslaunch robot_name_moveit_config robot_name_demo.launch  
+rosrun kinova_driver pid_traj_action_server.py
+```
+And we also need to modify the code in `pid_traj_action_server.py` if the arm is not `j2s7s300`. Refer [this solution](https://github.com/Kinovarobotics/kinova-ros/issues/257) to modify 
