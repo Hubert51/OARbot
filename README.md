@@ -6,7 +6,10 @@
     - [Setup](#Setup)
   - [Fiducials](#Fiducials)
     - [Setup](#Setup)
-
+- [Kinect-camera](#Kinect-camera)
+  - [Run-camera](#Run-camera)
+  - [Detect-tag](#detect-tag)
+  - [Show images](#Show-images)
 # Moving-Kinova
 ROS packages for Kinova robotic arms and its moving base
 
@@ -45,3 +48,28 @@ roslaunch robot_name_moveit_config robot_name_demo.launch
 rosrun kinova_driver pid_traj_action_server.py
 ```
 And we also need to modify the code in `pid_traj_action_server.py` if the arm is not `j2s7s300`. Refer [this solution](https://github.com/Kinovarobotics/kinova-ros/issues/257) to modify 
+
+
+# Kinect-camera
+Two kinect cameras fix on the top of room to provide the image and depth data for the system  
+
+## Run-camera
+In our system, we have two cameras
+```
+roslaunch kinect2_bridge kinect2_bridge.launch depth_method:=opengl sensor:=008097451747 base_name:=kin1
+roslaunch kinect2_bridge kinect2_bridge.launch depth_method:=opengl sensor:=501004442442 base_name:=kin2
+```
+
+## Detect-tag(same as above)
+```
+roslaunch aruco_detect aruco_detect.launch
+```
+
+## Show-images
+`rosrun image_view image_view image:=/fiducial_images`
+
+Optional:
+```
+rosrun kinect2_viewer kinect2_viewer kin1
+rosrun kinect2_viewer kinect2_viewer kin2
+```
