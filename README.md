@@ -2,10 +2,12 @@
 - [Moving-Kinova](#Moving-Kinova) 
   - [Robot-Raconteur](#Robot-Raconteur)  
     - [Setup](#Setup) 
+    - [Initialize](#Initialize)
   - [Aruco-ros](#Aruco-ros)
     - [Setup](#Setup)
   - [Fiducials](#Fiducials)
     - [Setup](#Setup)
+  - [Arm and Wrist Camera](#Arm-and-Wrist-Camera)
 - [Kinect-camera](#Kinect-camera)
   - [Run-camera](#Run-camera)
   - [Detect-tag](#detect-tag)
@@ -24,6 +26,16 @@ mkdir kinova_rr_bridge && cd kniova_rr_bridge
 
 2. Refer the sample in this project to create [XML file]() and [camke file]() in kinova_rr_bridge.
 
+### Initialize 
+1. For the control of arm  
+`rosrun kinova_rr_bridge jointController_host.py --port 4567`
+
+2. For open the camera  
+`rosrun kinova_rr_bridge camera_host.py --port 2345`
+
+3. For initialize the code to accept joystick as user input  
+`rosrun kinova_rr_bridge ui_host.py --port 7890`
+
 ## Aruco-ros
 * Software package and ROS wrappers of the Aruco Augmented Reality marker detector library. Refer [this](http://wiki.ros.org/aruco) for more details
 ### Setup
@@ -39,6 +51,12 @@ sudo apt-get install ros-kinetic-usb-cam ros-kinetic-aruco-ros
 ```
 sudo apt-get install ros-kinetic-fiducials
 ```
+## Arm and Wrist Camera
+The kinova arm and the camera on the wrist
+### Initialize
+To initialize the camera SDK, kinova SDK and tag detection.  
+`roslaunch assistiverobot bringup_arm_camera_tag.launch`
+
 
 ## Moveit
 * Official supported ros version is indego in ubuntu14.04. This is [documentation](https://github.com/Kinovarobotics/kinova-ros/wiki/MoveIt). If you want to use moveit in kinetic in ubuntu16.04. Some changes need to be applied. The scripts required to use moveit are 
