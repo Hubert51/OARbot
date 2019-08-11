@@ -34,7 +34,7 @@ function varargout = my_gui1(varargin)
 
 % Edit the above text to modify the response to help my_gui1
 
-% Last Modified by GUIDE v2.5 06-Aug-2019 11:38:13
+% Last Modified by GUIDE v2.5 08-Aug-2019 08:39:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -79,6 +79,8 @@ drawnow
 
 % imshow(handles.X{init_index},[]);
 handles.index = init_index;
+handles.update_flag = 1;
+handles.listbox1.UserData.cur_state = 1;
 
 handles.timer = timer(...
     'ExecutionMode', 'fixedRate', ...       % Run timer repeatedly
@@ -93,9 +95,13 @@ handles.timer2 = timer(...
 % set(handles.t, 'TimerFcn', @(hObject, event) funkcija(event, handles));
 % disp(3)
 % set(handles.t, 'TimerFcn', @(hObject, event) my_gui1('funkcija',event,guidata(hObject)));
-
-
-
+handles.locations.deliever.table = [-0.3519; -0.4546; 0.2916; -0.5186; 0.5133; 0.4944; -0.4723];
+handles.locations.initial.table = [-0.0515; -0.4863; 0.1694; 0.6935; -0.0466; -0.0242; 0.7185];
+handles.grab_ori = [0.7057; 0.0761; -0.0410; 0.7032];
+handles.process_food = ["Deliever"; "Move into microwave"];
+handles.cur_location = "";
+robotArm = RobotRaconteur.Connect('tcp://localhost:4567/KinovaJointServer/Kinova');
+robotArm.closeFinger([0.0; 0.0; 0.0])
 % Update handles structure
 
 if nargin == 3,
@@ -188,7 +194,6 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 function update_display(hObject,eventdata,hfigure)
 % Timer timer1 callback, called each time timer iterates.
 % Gets surface Z data, adds noise, and writes it back to surface object.
-
 %%
 % handles = 
 % 
@@ -261,14 +266,17 @@ while 1
         % handles.listbox1.String = {'123'; '456'; '789'};
         set(handles.figure1, 'SelectionType', 'open');
         my_listbox1_Callback(hfigure);
-
+        handles = guidata(hfigure);
     elseif user_input == -2
         load_listbox('', handles);
     end
-    axes(handles.axes1)
-    cla reset
-    imshow(img)
-    drawnow;
+    
+    if handles.update_flag == 1
+        axes(handles.axes1)
+        cla reset
+        imshow(img)
+        drawnow;
+    end
     pause(0.05)
     if strcmp(get(handles.timer, 'Running'), 'on')
         stop(handles.timer);
@@ -286,18 +294,61 @@ function [handles] = my_listbox1_Callback(hObject, eventdata)
 % Hints: contents = cellstr(get(hObject,'String')) returns listbox1 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from listbox1
 handles = guidata(hObject);
-if strcmp('Choose location of robot', handles.listbox1.String(1))
+if handles.listbox1.UserData.cur_state == 1
     location = handles.listbox1.String(handles.listbox1.Value);
-    rcnn = init_sys(location{1});
+    rcnn = init_sys(hObject);
+    handles = guidata(hObject);
+    handles.rcnn = rcnn;
+    handles.listbox1.UserData.cur_state = 2;
     objects = ["water", "food"];
-    detect_result = objDetection(rcnn, objects, 8);
-    obj_name = cell(length(detect_result), 1);
+    handles.text2.String = 'Detecting the Food';
+    handles.listbox1.String = [];
+    
+    detect_result = objDetection(handles.rcnn, objects, 8);
+    
+    handles.text2.String = 'Detected the food, please choose the food you want';
+    obj_name = [];
     for i=1:length(detect_result)
-        obj_name{i} = convertStringsToChars(detect_result(i).name);
+        if  detect_result(i).bbox ~= [0 0 0 0]
+            obj_name = [obj_name; detect_result(i).name];
+        end
     end
         
-    obj_name = [{'Choose the food'}; {'Re-detect'}; obj_name];
+    obj_name = ["Re-detect"; obj_name];
     handles.listbox1.String = obj_name;
+    handles.update_flag = 0;
+    handles.detect_result = detect_result;
+    guidata(hObject, handles);
+elseif handles.listbox1.UserData.cur_state == 2
+    handles.listbox1.UserData.cur_state = 3;
+    obj_name = handles.listbox1.String(handles.listbox1.Value);
+    if strcmp(convertCharsToStrings(obj_name{1}), "Re-detect")
+        handles.listbox1.UserData.cur_state = 1;
+        guidata(hObject, handles);
+        my_listbox1_Callback(hObject)
+    else
+        index = 0;
+        for i=1:length(handles.detect_result)
+            if handles.detect_result(i).name == obj_name
+                index = i;
+                break;
+            end
+        end
+        handles.text2.String = 'Localizing and grabbing the food';
+        handles.listbox1.String = [];
+        objLocalization(handles.rcnn, [convertCharsToStrings(obj_name{1})] , handles.detect_result(index).bbox);
+        handles.listbox1.String = handles.process_food;
+        handles.text2.String = 'Choose an option for the food';
+        handles.listbox1.Value = 1;
+    end
+
+elseif handles.listbox1.UserData.cur_state == 3
+    option = lower(handles.listbox1.String(handles.listbox1.Value));
+    if contains(convertCharsToStrings(option{1}), 'deliever')
+        deliever(hObject)
+    elseif contains(option, 'microwave')
+        disp("Need Implement")
+    end
 end
 
 % if strcmp(get(handles.figure1,'SelectionType'), 'open') 
@@ -346,6 +397,7 @@ function load_listbox(dir_path,handles)
 % cd (dir_path)
 % dir_struct = dir(dir_path);
 [sorted_names,sorted_index] = sortrows({'Choose location of robot'; 'On the table'; 'Before the Fridge'});
+% TODO: modify from cell to list
 handles.file_names = {'Choose location of robot'; 'On the table'; 'Before the Fridge'};
 % handles.is_dir = [dir_struct.isdir];
 % handles.sorted_index = sorted_index;
