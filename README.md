@@ -36,6 +36,9 @@ mkdir kinova_rr_bridge && cd kniova_rr_bridge
 3. For initialize the code to accept joystick as user input  
 `rosrun kinova_rr_bridge ui_host.py --port 7890`
 
+4. For frame transformation
+`rosrun kinova_rr_bridge peripherals_host.py --port 1234`
+
 ## Aruco-ros
 * Software package and ROS wrappers of the Aruco Augmented Reality marker detector library. Refer [this](http://wiki.ros.org/aruco) for more details
 ### Setup
