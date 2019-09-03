@@ -122,7 +122,7 @@ class KinovaUI(object):
     def getInput(self):
         # resource = 1
         # print time.time()
-        if time.time() - self.last_time > 0.15:
+        if time.time() - self.last_time > 1:
             axes = np.array(self.axes)
             index = np.argmax(np.abs(axes))
             value = axes[index]
