@@ -12,9 +12,12 @@ import actionlib
 import kinova_msgs.msg
 import std_msgs.msg
 import geometry_msgs.msg
+from geometry_msgs.msg import Pose, PoseStamped, PoseArray
+
 
 import thread
 import threading
+import time
 
 # camera
 from camera_host import KinovaCamera
@@ -39,8 +42,19 @@ from geometry_msgs.msg import Twist
 from cv_bridge import CvBridge, CvBridgeError
 from datetime import datetime
 
-from scipy import stats
+# from scipy import stats
 
+# moveit 
+import moveit_commander
+
+import tf_conversions
+
+import tf2_ros
+import geometry_msgs.msg
+# import kinova_msgs.msg
+import fiducial_msgs.msg
+import assistiverobot_msgs.msg
+import roslaunch
 
 
 """ Global variable """
@@ -49,9 +63,26 @@ finger_number = 0
 finger_maxDist = 18.9/2/1000  # max distance for one finger
 finger_maxTurn = 6800  # max thread rotation for one finger
 currentFingerPosition = [0.0, 0.0, 0.0]
+pub_base_cmd = rospy.Publisher("/base_cmd", assistiverobot_msgs.msg.Twist2DStamped, queue_size=1)
+
+def allowence(x, allowed):
+    if abs(x) <= allowed:
+        return 0
+    else:
+        return x
+
+def publishControl(Vx,Vy,W):
+        base_cmd_msg = assistiverobot_msgs.msg.Twist2DStamped()
+        base_cmd_msg.header.stamp = rospy.Time.now()
+        base_cmd_msg.v_x =  Vx
+        base_cmd_msg.v_y = Vy
+        base_cmd_msg.omega = W
+
+        pub_base_cmd.publish(base_cmd_msg)
+
 
 def gripper_client(finger_positions):
-    print 'in function'
+    
     """Send a gripper goal to the action server."""
     action_address = '/' + prefix + 'driver/fingers_action/finger_positions'
     action_address = '/j2n6s300_driver/fingers_action/finger_positions'
@@ -190,27 +221,9 @@ service KinovaJoint_interface
 
 option version 0.4
 
-struct BaxterImage
-    field int32 width
-    field int32 height
-    field int32 step
-    field uint8[] data
-end struct
-
-struct CameraIntrinsics
-    field double[] K
-    field double[] D
-end struct
-
-struct ImageHeader
-    field int32 width
-    field int32 height
-    field int32 step
-end struct
-
-struct ARtagInfo
-    field double[] tmats
-    field int32[] ids
+struct Pose
+    field double[] pos
+    field double[] ori
 end struct
 
 
@@ -220,8 +233,22 @@ object Kinova
     # camera control functions
     function double[] getOri()
     function double[] getPos()
+    function double[] getBasePos()
+    function double[] getDistance()
+    function void moveBase(double[] pos)
+    function void startBase()
+    function void stopBase()
     function double cartesian_pose_client(double[] pos, double[] ori, double relative)
     function void closeFinger(double[] values)
+    
+    function single cartesianPathTraj(Pose{list} waypoint)
+    function double poseTargetTraj(double[] pos, double[] ori)
+    function void execute(double wait)
+
+    function void addBox(string name, double[] dim, double[] pos)
+    function void removeScene(string name)
+    function void attachBox(string jointName, string boxName)
+    function void removeAttachedObject(string link, string name)
 
     # function void openCamera()
     # function void closeCamera()
@@ -257,11 +284,63 @@ class Kinova(object):
         self._ee_ori = [0]*4
         self._pose = None
         self._valid = False
-
+        self.base_pos = None # base position
+        self.fix_pos = None # tag position
+        self.distance = None
+        self.moving = False
+        self.start_base = None
+        # self.startBase()
         self._t_effector = threading.Thread(target=self.endeffector_worker)
         self._t_effector.daemon = True
         self._t_effector.start()
+        '''
+        self._plan = None
+        self.arm = moveit_commander.MoveGroupCommander('arm')
+
+        self.scene = moveit_commander.PlanningSceneInterface()
+        self.robot = moveit_commander.RobotCommander()
+
+        # self.arm.setEndEffectorLink('j2n6s300_end_effector')
+        rospy.sleep(3)
+        '''
+#         # self.arm.
+#         self.arm.set_planning_time(60)
+#         self.arm.set_num_planning_attempts(30)
+#         # self.arm.set_joint_value_target( [0.0, 3.1415926535885, 3.1415926535895, 0.0, 0.0, 0.0] )
+        
+        # pose_goal = geometry_msgs.msg.Pose()
+        # pose_goal.position.x = -0.0788955718279 # self._ee_pos[0] 
+        # pose_goal.position.y = -0.628492593765 # self._ee_pos[1]
+        # pose_goal.position.z = 0.464324653149 # self._ee_pos[2] - 0.05
+        # pose_goal.orientation.w= 0.946 # self._ee_ori[0]
+        # pose_goal.orientation.x = 0.035 # self._ee_ori[1]
+        # pose_goal.orientation.y = 0.316 # self._ee_ori[2]
+        # pose_goal.orientation.z = -0.064 # self._ee_ori[3]
+#         print self._ee_ori
+# #  [-0.0788955718279, -0.628492593765, 0.464324653149]
+# # Cartesian orientation in Quaternion is: 
+# # qx 0.035, qy 0.316, qz -0.064, qw 0.946
+
+#         self.arm.set_pose_target(pose_goal)
+#         self._plan = self.arm.plan()
+
+
+#         plan2 = self.arm.plan()
+#         self.arm.execute(plan2, wait=True)
+#         robot = moveit_commander.RobotCommander()
+        # print robot.get_current_state()
+        # print robot.get_group_names()
+        # ['arm', 'gripper']
+
+
+
         # image_sub = rospy.Subscriber(self.address, geometry_msgs.msg.PoseStamped, process) 
+
+    def close(self):
+        # self._running = False
+        # self._t_joints.join()
+        self._t_effector.join()
+        # self._t_command.join()
 
     def getPos(self):
         while self._valid == False:
@@ -274,6 +353,150 @@ class Kinova(object):
             rospy.sleep(0.1)
             pass
         return self._ee_ori
+    
+
+    '''
+    moving base functionality
+
+    '''    
+    def getBasePos(self):
+        return self.base_pos
+
+    def getDistance(self):
+        return self.distance
+
+
+    def moveBase(self, pos):
+        self.moving = True
+        self.base_goal = np.array(pos) + self.distance
+
+    def startBase(self):
+        rospy.sleep(20)
+        if self.start_base == None:
+            package = 'goal_base_tf2' 
+            executable = 'goal_base_listener_node.py' 
+            node = roslaunch.core.Node(package, executable)
+            launch = roslaunch.scriptapi.ROSLaunch() 
+            launch.start()
+            print 'start'
+            self.start_base = launch.launch(node)
+        elif not self.start_base.is_alive():
+            self.start_base.start()
+            rospy.sleep(1)
+
+    
+    def stopBase(self):
+        # print process.is_alive() 
+        if self.start_base.is_alive():
+            self.start_base.stop()
+            rospy.sleep(1)
+
+
+    '''
+    end moving base
+
+    '''
+    def execute(self, wait):
+        if int(wait) == 1:
+            wait = True
+        else:
+            wait = False
+        self.arm.execute(self._plan, wait=True)
+
+    def cartesianPathTraj(self, points):
+        # try:
+        #     print value[0].pos
+        # except:
+        #     try:
+        #         print value.pos
+        #     except:
+        #         print "not list type"
+        poses = []
+        for pose in points:
+            pose_goal = geometry_msgs.msg.Pose()
+            pose_goal.position.x = pose.pos[0]
+            pose_goal.position.y = pose.pos[1]
+            pose_goal.position.z = pose.pos[2]
+            pose_goal.orientation.x = pose.ori[0]
+            pose_goal.orientation.y = pose.ori[1]
+            pose_goal.orientation.z = pose.ori[2]
+            pose_goal.orientation.w = pose.ori[3]
+            poses.append(pose_goal)
+
+        # add initialize into the waypoints
+        # if len(poses) == 1:
+        #     if self._valid_limb_names[limb] == 'left':
+        #         pose1 = self.left_arm.get_current_pose().pose
+
+        #     elif self._valid_limb_names[limb] == 'right':
+        #         pose1 = self.right_arm.get_current_pose().pose
+
+        #     poses = [pose1, poses[0]]
+        print poses
+        # pose1 = self.right_arm.get_current_pose().pose
+        # pose2 = copy.deepcopy(pose1)
+        # pose2.position.y += 0.15
+        # print pose1
+        # print pose2
+        # waypoints = [pose1, pose2]
+        (self._plan, fraction) = self.arm.compute_cartesian_path( poses,   # waypoints to follow
+                                   0.01,        # eef_step
+                                   0.0) 
+        # print plan.joint_trajectory.points[0].positions
+        return fraction
+
+
+    def poseTargetTraj(self, pos, ori):
+        # end_effector = self.left_arm.get_end_effector_link()
+        # wpose = self.left_arm.get_current_pose(end_effector).pose
+        # print wpose
+        pose_goal = geometry_msgs.msg.Pose()
+        pose_goal.position.x = pos[0]
+        pose_goal.position.y = pos[1]
+        pose_goal.position.z = pos[2]
+        pose_goal.orientation.x= ori[0]
+        pose_goal.orientation.y = ori[1]
+        pose_goal.orientation.z = ori[2]
+        pose_goal.orientation.w = ori[3]
+
+
+        self.arm.set_pose_target(pose_goal)
+        self._plan = self.arm.plan()
+        return len(self._plan.joint_trajectory.points)
+
+    ## @brief if two scenes share same name, the second one will replace the first one
+    ## @param name: name of the scene
+    ## @param dim: one by three array, dimension of the scene
+    ## @param pos: one by three array, position of the scene
+    def addBox(self, name, dim, pos):
+        p = PoseStamped()
+        p.header.frame_id = self.robot.get_planning_frame()
+        p.pose.position.x = pos[0]
+        p.pose.position.y = pos[1]
+        p.pose.position.z = pos[2]
+        self.scene.add_box(name, p, dim)
+
+
+    ## @param name: the name of the scene will be removed
+    def removeScene(self, name):
+        self.p.removeCollisionObject(name)
+
+
+    ## @brief attach the box onto one specific joint
+    ## @param name: name of the scene
+    ## @param dim: one by three array, dimension of the scene
+    ## @param pos: one by three array, position of the scene
+    def attachBox(self, jointName, boxName):
+        self.scene.attach_box(jointName, boxName)
+
+    def removeAttachedObject(self, link, name=None):
+        print name
+        if name == '' or name == "1":
+
+            name = None
+        self.scene.remove_attached_object(link, name)
+
+
 
     def process(self, data):
         pose = data.pose
@@ -308,47 +531,105 @@ class Kinova(object):
         action_address = '/' + prefix + 'driver/pose_action/tool_pose'
         client = actionlib.SimpleActionClient(action_address, kinova_msgs.msg.ArmPoseAction)
         client.wait_for_server()
-
+        
         if int(relative) == 1:
             position = np.array(position) + np.array(self._ee_pos)
+        i = 0
+        #while i < 3 and not self.closeGoal(position):
+        if 1:
+            i += 1
+            goal = kinova_msgs.msg.ArmPoseGoal()
+            goal.pose.header = std_msgs.msg.Header(frame_id=(prefix + 'link_base'))
+            goal.pose.pose.position = geometry_msgs.msg.Point(
+                x=position[0], y=position[1], z=position[2])
+            goal.pose.pose.orientation = geometry_msgs.msg.Quaternion(
+                x=orientation[0], y=orientation[1], z=orientation[2], w=orientation[3])
 
-        goal = kinova_msgs.msg.ArmPoseGoal()
-        goal.pose.header = std_msgs.msg.Header(frame_id=(prefix + 'link_base'))
-        goal.pose.pose.position = geometry_msgs.msg.Point(
-            x=position[0], y=position[1], z=position[2])
-        goal.pose.pose.orientation = geometry_msgs.msg.Quaternion(
-            x=orientation[0], y=orientation[1], z=orientation[2], w=orientation[3])
+            client.send_goal(goal)
 
+            if client.wait_for_result(rospy.Duration(10.0)):
+                pass
+                # print client.get_result()
+                #return 1
+                #return client.get_result()
+            else:
+                client.cancel_all_goals()
+                print('        the cartesian action timed-out')
+                #return 0
+                #return None
+            # print "Approaching the goal"
+        return 1
 
-        # print('goal.pose in client 1: {}'.format(goal.pose.pose)) # debug
-
-        client.send_goal(goal)
-
-        if client.wait_for_result(rospy.Duration(10.0)):
-            # print client.get_result()
-            return 1
-            return client.get_result()
-        else:
-            client.cancel_all_goals()
-            print('        the cartesian action timed-out')
-            return 0
-            return None
-
+    def closeGoal(self, position):
+        position = np.array(position)
+        return np.prod(np.abs(position - self._ee_pos) < 0.1)
 
     def closeFinger(self, values):
-
-        print('Sending finger position ...')
+        #print('Sending finger position ...')
         result = gripper_client(values)
-        print('Finger position sent!')
+        #print('Finger position sent!')
 
+    def handle_goal_base_pose(self, msg):
+        # msg.transforms # Type: array of fiducial_msgs.msg.FiducialTransform
 
+        br = tf2_ros.TransformBroadcaster()
+        t = geometry_msgs.msg.TransformStamped()
 
+        fix_tag = None
+        base_tag = None
+        for detected_transform in msg.transforms:
+            t.header.stamp = rospy.Time.now()
+            t.header.frame_id = "kin1_rgb_optical_frame"
+            id1 = detected_transform.fiducial_id
+            if id1 == 35:
+                self.base_pos = np.array([detected_transform.transform.translation.x, detected_transform.transform.translation.y])
+            if id1 == 15:
+                # print detected_transform.translation.x
+                self.fix_pos = np.array([detected_transform.transform.translation.x, detected_transform.transform.translation.y])
+        self.distance = self.base_pos - self.fix_pos
+        
+        # move the base if needed
+        if not self.moving:
+            return 
+        
+        # Control Law Gains
+        v_p_gain = 0.364425 *0.75 # Speed is max when error is larger than 1meter
+        v_d_gain = 0.0
+        w_p_gain = 0.848960 *0.5# Angular speed is when error is larger than 1 radian 
+        w_d_gain = 0.0
+
+        # marker id's
+        base_id = 35
+        goal1_id = 15
+        goal2_id = 15
+        
+        P_bg = self.base_goal - self.distance
+            # Control Law
+        P_bg = [allowence(n, 0.005) for n in P_bg] # 5cm
+        # E_bg = [allowence(n, 0.015) for n in E_bg] # 5 degrees = 0.09 radians
+
+        V_x = P_bg[0] * v_p_gain
+        V_y = P_bg[1] * v_p_gain
+        
+        # no rotation now
+        # W_z = E_bg[2] * w_p_gain
+        W_z = 0
+        # Create Velocity Message to move end effector to Goal
+        publishControl( V_x, -V_y, W_z)
+        # add by Ruijie
+        # rospy.sleep(1) 
+        print (V_x, V_y, W_z)
+        rospy.sleep(0.3)
+        publishControl(0,0,0)
+        # Check whether the goal position is reached
+        if  (abs(V_x) <= 0.01 and abs(V_y) <= 0.01 and abs(W_z) <= 0.03):
+            self.moving = False
 
     # worker function to request and update end effector data for baxter
     # Try to maintain 100 Hz operation
     def endeffector_worker(self):
         image_sub = rospy.Subscriber(self.address, geometry_msgs.msg.PoseStamped, self.process) 
-
+        rospy.Subscriber('/fiducial_transforms', fiducial_msgs.msg.FiducialTransformArray, self.handle_goal_base_pose)
         # while self._running:
         #     t1 = time.time()
         #     self.readEndEffectorPoses()
@@ -397,7 +678,7 @@ def main(argv):
     print "tcp://localhost:" + str(port) + "/KinovaJointServer/Kinova" 
     raw_input("press enter to quit...\r\n")
 
-    # baxter_obj.closeCamera()
+    kinova_obj.close()
 
     # This must be here to prevent segfault
     RR.RobotRaconteurNode.s.Shutdown()

@@ -30,8 +30,8 @@ from geometry_msgs.msg import Twist
 from cv_bridge import CvBridge, CvBridgeError
 from datetime import datetime
 
-from scipy import stats
-import matplotlib.pyplot as plt
+# from scipy import stats
+# import matplotlib.pyplot as plt
 import cv2.aruco as aruco
 
 
@@ -122,7 +122,7 @@ class KinovaUI(object):
     def getInput(self):
         # resource = 1
         # print time.time()
-        if time.time() - self.last_time > 1:
+        if time.time() - self.last_time > 0.4:
             axes = np.array(self.axes)
             index = np.argmax(np.abs(axes))
             value = axes[index]

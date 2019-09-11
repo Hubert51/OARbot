@@ -27,8 +27,8 @@ from geometry_msgs.msg import Twist
 from cv_bridge import CvBridge, CvBridgeError
 from datetime import datetime
 
-from scipy import stats
-import matplotlib.pyplot as plt
+# from scipy import stats
+# import matplotlib.pyplot as plt
 import cv2.aruco as aruco
 
 
@@ -39,10 +39,9 @@ service KinovaCamera_interface
 
 option version 0.4
 
-struct BaxterImage
+struct KinovaImage
     field int32 width
     field int32 height
-    field int32 step
     field uint8[] data
 end struct
 
@@ -70,6 +69,7 @@ object KinovaCamera
     function double[] getOri()
     function double[] getPos()
     function double getDepth(double[] bbox)
+    function KinovaImage getImg()
     function void testFunction()
     function void ARtag_Detection()
 
@@ -101,16 +101,19 @@ data = None
 class KinovaCamera(object):
     """docstring for Kinova"""
     def __init__(self):
+        print 'Initialize the camera rr noda'
         self.tag_address = "/aruco_single/pose"
         self.color_address = "/camera/color/image_raw"
         self.depth_address = "/camera/depth/image_rect_raw"
         self.depth_address = "/camera/aligned_depth_to_color/image_raw"
 
         self.image = None
+        self.matlab_image = None
         self.depth_image = None
+        self.matlab_image = RR.RobotRaconteurNode.s.NewStructure("KinovaCamera_interface.KinovaImage")        
 
         self.bridge = CvBridge()
-
+        print 'before the sub'
         image_sub = message_filters.Subscriber(self.color_address, Image)
         depth_sub = message_filters.Subscriber(self.depth_address, Image)
         self.ts = message_filters.ApproximateTimeSynchronizer([image_sub, depth_sub], 10, 0.5)
@@ -123,8 +126,10 @@ class KinovaCamera(object):
         self._arucoParams = aruco.DetectorParameters_create()
         self._markerSize = 0.061
 
+        self._lock = threading.RLock()
         self._t_effector = threading.Thread(target=self.endeffector_worker)
         self._t_effector.daemon = True
+        print "before the start`"
         self._t_effector.start()
         # image_sub = rospy.Subscriber(self.address, geometry_msgs.msg.PoseStamped, process) 
 
@@ -142,12 +147,18 @@ class KinovaCamera(object):
     def getDepthImg(self):
         while self.depth_image is None:
             pass
+        #self.image = RR.RobotRaconteurNode.s.NewStructure("KinovaCamera_interface.KinovaImage")
+        #self.image.width = self.image_header.width
+        #self.image.height = self.image_header.height
         return self.depth_image
 
     def getImg(self):
         while self.image is None:
             pass
-        return self.image
+        self.matlab_image.width = self.image.shape[1]
+        self.matlab_image.height = self.image.shape[0]
+        # self.matlab_image.data = self.image
+        return self.matlab_image
 
     def getDepth(self, bbox):
         bbox[2] *= 0.75
@@ -168,8 +179,8 @@ class KinovaCamera(object):
         # cv2.rectangle(self.depth_image,(bbox[0],bbox[1]),(bbox[0]+bbox[2],bbox[1]+bbox[3]),(0,255,0),5)
 
         # for debug
-        cv2.imwrite("sub_depth_img1.png", sub_depth)
-        cv2.imwrite("depth_img.png", self.depth_image)
+        # cv2.imwrite("sub_depth_img1.png", sub_depth)
+        # cv2.imwrite("depth_img.png", self.depth_image)
         # cv2.imshow("test", sub_depth)
         # cv2.imshow("test2", self.depth_image)
         # cv2.imshow("test3", sub_img)
@@ -274,20 +285,16 @@ class KinovaCamera(object):
         plt.show()
 
 
-
-
-
-
     def process(self, data):
         pose = data.pose
         self._ee_pos[0] = pose.position.x
         self._ee_pos[0] = pose.position.x
         self._ee_pos[1] = pose.position.y
         self._ee_pos[2] = pose.position.z
-        self._ee_ori[0] = pose.orientation.w
-        self._ee_ori[1] = pose.orientation.x
-        self._ee_ori[2] = pose.orientation.y
-        self._ee_ori[3] = pose.orientation.z
+        self._ee_ori[0] = pose.orientation.x
+        self._ee_ori[1] = pose.orientation.y
+        self._ee_ori[2] = pose.orientation.z
+        self._ee_ori[3] = pose.orientation.w
 
     def readEndEffectorPoses(self):
         l_pose = self._left.endpoint_pose()
@@ -305,10 +312,14 @@ class KinovaCamera(object):
     def callback(self, rgb_data, depth_data):
         try:
             self.image = self.bridge.imgmsg_to_cv2(rgb_data, "bgr8")
+            
             self.depth_image = self.bridge.imgmsg_to_cv2(depth_data, "32FC1")
+            with self._lock:
+                if rgb_data.data:
+                    self.matlab_image.data = np.frombuffer(rgb_data.data,dtype="u1")
+            # print self.depth_image.shape
         except CvBridgeError, e:
             print e
-
         # print 'success'
 
         # self.depth_array = np.array(depth_image, dtype=np.float32)
