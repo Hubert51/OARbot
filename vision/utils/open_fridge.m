@@ -53,6 +53,8 @@ function [outputArg1,outputArg2] = open_fridge(hObject,inputArg2)
     % obotArm.execute(0);
     %robotArm.cartesian_pose_client([-0.15; -0; 0.0], robotArm.getOri(), 1);
     robotArm.cartesian_pose_client([0.1708; 0.3253; -0.0609], robotArm.getOri(), 0);
+    
+    handles.locations.endOpenFridge = [robotArm.getPos(); robotArm.getOri()];
 
     robotArm.closeFinger([0.0; 0.0; 0.0])
     pause(1)
@@ -66,6 +68,8 @@ function [outputArg1,outputArg2] = open_fridge(hObject,inputArg2)
     % move back to the front of the fridge
     robotArm.cartesian_pose_client([-0.40; 0.1; 0.], init_ori, 1);
     robotArm.cartesian_pose_client(init_pos+[-0.06; 0.;0], init_ori, 0);
+    guidata(hObject, handles);
+
 % 
 %     robotArm.moveBase([0.0; -0.15])
 %     pause(3)
