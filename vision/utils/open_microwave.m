@@ -5,14 +5,14 @@ function [outputArg1,outputArg2] = open_microwave(hObject,inputArg2)
 
     deltaTheta = 10/180*pi ;
     r = 0.305; % The radius of the fridge door
-    r = 0.40; % radius of the microwave
+    r = 0.38; % radius of the microwave
     robotArm = RobotRaconteur.Connect('tcp://192.168.1.117:4567/KinovaJointServer/Kinova');
     peripherals = RobotRaconteur.Connect('tcp://192.168.1.117:1234/KinovaPeripheralsServer/peripherals');
     
     % move to the left 
-    robotArm.moveBase([-0.15; -0.])
+    robotArm.moveBase2([-0.15; -0.])
     pause(8)
-    robotArm.moveBase([-0.0005; 0])
+    robotArm.moveBase2([-0.0005; 0])
     
     init_pos = [0.08; 0.4834; 0.2499];
     init_ori = [0.0026; 0.7361; 0.6761; 0.0310];
@@ -58,18 +58,20 @@ function [outputArg1,outputArg2] = open_microwave(hObject,inputArg2)
     % robotArm.cartesian_pose_client([0.1708; 0.3253; -0.0609], robotArm.getOri(), 0);
     
     robotArm.closeFinger([0.0; 0.0; 0.0])
+    p1 = robotArm.getPos();
+    ori1 = robotArm.getOri();
 
     % move away from fridge door
-    robotArm.moveBase([-0.15; -0.])
+    robotArm.moveBase2([-0.15; -0.])
     pause(4)
-    robotArm.moveBase([-0.0005; 0])
+    robotArm.moveBase2([-0.000; 0])
     pause(1)
     robotArm.cartesian_pose_client([0.; -0; 0.35], robotArm.getOri(), 1);
     
     % move the base back 
-    robotArm.moveBase([0.15; -0.])
+    robotArm.moveBase2([0.15; -0.])
     pause(12)
-    robotArm.moveBase([-0.0005; 0])
+    robotArm.moveBase2([-0.000; 0])
     % move back to the front of the fridge
     robotArm.cartesian_pose_client(init_pos+[-0.2; 0.;0], init_ori, 0);
 
