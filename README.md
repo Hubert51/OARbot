@@ -70,6 +70,9 @@ rosrun kinova_driver pid_traj_action_server.py
 ```
 And we also need to modify the code in `pid_traj_action_server.py` if the arm is not `j2s7s300`. Refer [this solution](https://github.com/Kinovarobotics/kinova-ros/issues/257) to modify 
 
+### Box orientation
+* The matlab and python have same quaternion format \[w, x, y, z\]
+
 
 # Kinect-camera
 Two kinect cameras fix on the top of room to provide the image and depth data for the system  
