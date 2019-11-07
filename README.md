@@ -97,3 +97,8 @@ Optional:
 rosrun kinect2_viewer kinect2_viewer kin1
 rosrun kinect2_viewer kinect2_viewer kin2
 ```
+
+Dependency
+1. PointCloud Library
+  * [python-pcl github repo](https://github.com/strawlab/python-pcl)
+  * [python-pcl website](http://strawlab.github.io/python-pcl/)
