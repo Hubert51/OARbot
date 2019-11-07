@@ -102,3 +102,6 @@ Dependency
 1. PointCloud Library
   * [python-pcl github repo](https://github.com/strawlab/python-pcl)
   * [python-pcl website](http://strawlab.github.io/python-pcl/)
+2. Moveit
+  * [planning_scene_interface.py](http://docs.ros.org/jade/api/moveit_commander/html/planning__scene__interface_8py_source.html)
+  * [moveit_commander.move_group.MoveGroupCommander Class Reference](http://docs.ros.org/jade/api/moveit_commander/html/classmoveit__commander_1_1move__group_1_1MoveGroupCommander.html#a0e95859080ce005ee4d907b8dac7d8e3)
