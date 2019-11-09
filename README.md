@@ -12,6 +12,11 @@
   - [Run-camera](#Run-camera)
   - [Detect-tag](#detect-tag)
   - [Show images](#Show-images)
+- [Assets](#Assets)
+  - [Training-Data](#Training-Data)
+- [Dependency](#Dependency)
+  - [PointCloud Library](#PointCloud-Library)
+  - [Moveit](#Moveit)
 # Moving-Kinova
 ROS packages for Kinova robotic arms and its moving base
 
@@ -97,8 +102,11 @@ Optional:
 rosrun kinect2_viewer kinect2_viewer kin1
 rosrun kinect2_viewer kinect2_viewer kin2
 ```
+# Assets
+## Training-Data
+* [Objects in the fridge](https://drive.google.com/drive/folders/1nERUeKihDFWaOkOLvG9-ORnOm8ObeKN1?usp=sharing)
 
-Dependency
+# Dependency
 1. PointCloud Library
   * [python-pcl github repo](https://github.com/strawlab/python-pcl)
   * [python-pcl website](http://strawlab.github.io/python-pcl/)
