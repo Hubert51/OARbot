@@ -51,6 +51,7 @@ mkdir kinova_rr_bridge && cd kniova_rr_bridge
 ```
 sudo apt-get install ros-kinetic-usb-cam ros-kinetic-aruco-ros
 ```
+2. Aruco size for the kinect is 17.7cm. Firstly, we generate the .svg file and change the size in the property.
 
 ## Fiducials
 * This package provides a system that allows a robot to determine its position and orientation by looking at a number of fiducial markers (similar to QR codes) that are fixed in the environment of the robot. Refer [this](http://wiki.ros.org/fiducials) for more details
