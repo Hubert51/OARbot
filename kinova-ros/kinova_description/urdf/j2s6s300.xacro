@@ -2,7 +2,7 @@
 <!-- j2_6s refers to jaco v2 6DOF spherical -->
 
 
-<root xmlns:xi="http://www.w3.org/2001/XInclude"
+<robot xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:gazebo="http://playerstage.sourceforge.net/gazebo/xmlschema/#gz"
     xmlns:model="http://playerstage.sourceforge.net/gazebo/xmlschema/#model"
     xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
@@ -14,7 +14,7 @@
     xmlns:rendering="http://playerstage.sourceforge.net/gazebo/xmlschema/#rendering"
     xmlns:renderable="http://playerstage.sourceforge.net/gazebo/xmlschema/#renderable"
     xmlns:physics="http://playerstage.sourceforge.net/gazebo/xmlschema/#physics"
-    xmlns:xacro="http://ros.org/wiki/xacro">
+    xmlns:xacro="http://www.ros.org/wiki/xacro">
 
     <xacro:include filename="$(find kinova_description)/urdf/kinova_common.xacro" />
     <xacro:include filename="$(find kinova_description)/urdf/kinova_finger_set.xacro" />
@@ -102,7 +102,7 @@
     <xacro:property name="joint_end_effector_type" value="fixed" />
     <xacro:property name="joint_end_effector_axis_xyz" value="0 0 0" />
     <xacro:property name="joint_end_effector_origin_xyz" value="0 0 -0.1600" />
-    <xacro:property name="joint_end_effector_origin_rpy" value="${J_PI} 0 0" />
+    <xacro:property name="joint_end_effector_origin_rpy" value="${J_PI} 0 ${J_PI/2}" />
 
 
 
@@ -140,4 +140,4 @@
     </xacro:macro>
     
 
-</root>
+</robot>

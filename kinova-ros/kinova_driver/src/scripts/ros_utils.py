@@ -14,7 +14,7 @@ def cmd_to_JointTorqueMsg(cmd):
 	jointCmd.joint4 = cmd[3][3];
 	jointCmd.joint5 = cmd[4][4];
 	jointCmd.joint6 = cmd[5][5];
-	jointCmd.joint7 = cmd[6][6];
+	# jointCmd.joint7 = cmd[6][6];
 	
 	return jointCmd
 
@@ -29,7 +29,7 @@ def cmd_to_JointVelocityMsg(cmd):
 	jointCmd.joint4 = cmd[3][3];
 	jointCmd.joint5 = cmd[4][4];
 	jointCmd.joint6 = cmd[5][5];
-	jointCmd.joint7 = cmd[6][6];
+	# jointCmd.joint7 = cmd[6][6];
 
 	return jointCmd
 

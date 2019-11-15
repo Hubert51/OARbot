@@ -10,7 +10,7 @@ import actionlib
 import ros_utils
 
 import pid_controller
-import actionlib_tutorials.msg
+# import actionlib_tutorials.msg
 import control_msgs.msg
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 import kinova_msgs
@@ -23,10 +23,10 @@ class JointTrajectoryAction(object):
 
     def __init__(self, name):
         self._action_name = name
-        self._as = actionlib.SimpleActionServer('/j2s7s300/follow_joint_trajectory', control_msgs.msg.FollowJointTrajectoryAction, execute_cb=self.execute_cb, auto_start = False)
-        self._feedback_sub = rospy.Subscriber('/j2s7s300_driver/trajectory_controller/state', control_msgs.msg.FollowJointTrajectoryFeedback, self.feedback_cb)
+        self._as = actionlib.SimpleActionServer('/j2n6s300/follow_joint_trajectory', control_msgs.msg.FollowJointTrajectoryAction, execute_cb=self.execute_cb, auto_start = False)
+        self._feedback_sub = rospy.Subscriber('/j2n6s300_driver/trajectory_controller/state', control_msgs.msg.FollowJointTrajectoryFeedback, self.feedback_cb)
         self._controller = pid_controller.PIDController()
-        self._vel_pub = rospy.Publisher('/j2s7s300_driver/in/joint_velocity',
+        self._vel_pub = rospy.Publisher('/j2n6s300_driver/in/joint_velocity',
                                        kinova_msgs.msg.JointVelocity,
                                        queue_size=1)
         self._as.start()
