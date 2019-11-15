@@ -1,0 +1,6 @@
+<launch>
+    <node pkg="kinova_rr_bridge" type="jointController_host.py" name="jointController_host" output="screen" args="--port 4567">
+    </node>
+    <node pkg="kinova_rr_bridge" type="peripherals_host.py" name="peripherals_host" output="screen" args="--port 1234">
+    </node>
+</launch>

@@ -20,8 +20,15 @@
     </include>
     
     <!-- Marker-Goal Transform BASE -->
-    <include file="$(find goal_base_tf2)/launch/tf_goal_base_node.launch">
+    <include file="$(find goal_base_tf2)/launch/tf_goal_base_node_2.launch">
     </include>
     
+    <!-- Marker-Goal Transform BASE with person-->
+    <!-- <include file="$(find goal_base_tf2)/launch/tf_goal_base_with_person_node.launch">
+    </include> -->
+    
+    <!-- Marker-Goal Transform BASE Listener-->
+    <include file="$(find goal_base_tf2)/launch/goal_base_listener_node_3.launch">
+    </include>
     
 </launch>
