@@ -8,7 +8,7 @@ project(goal_base_tf2)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  fiducial_msgs
+#  fiducial_msgs
   roscpp
   rospy
   std_msgs

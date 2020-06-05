@@ -18,7 +18,7 @@
   </include>
 
   <!-- If needed, broadcast static tf for robot root -->
-  
+
   <!-- Run joint trajectory action server, which receives planned motion goal under "follow_joint_trajectory", and publish ROS standard trajectory via topic "command". Then for specified robot, the trajectory will be interpreted to their own joint trajectory controller -->
   <node name="j2n6s300_joint_trajectory_action_server" pkg="kinova_driver" type="joint_trajectory_action_server" output="screen" respawn="false" args="j2n6s300"/>
 
@@ -36,7 +36,7 @@
     <arg name="controller_manager" value="j2n6s300"/>
   </include>
 
-  <!-- kinova-driver Controller parameters-->  
+  <!-- kinova-driver Controller parameters-->
   <rosparam file="$(find j2n6s300_moveit_config)/config/controllers.yaml"/>
 
   <!-- Run Rviz and load the default config to see the state of the move_group node -->
@@ -48,6 +48,10 @@
   <!-- If database loading was enabled, start mongodb as well -->
   <include file="$(find j2n6s300_moveit_config)/launch/default_warehouse_db.launch" if="$(arg db)">
     <arg name="moveit_warehouse_database_path" value="$(arg db_path)"/>
-  </include>	
+  </include>
+
+  <!--Perception Pipeline-->
+  <rosparam command="load" file="$(find j2n6s300_moveit_config)/config/sensors_kinect_depthmap.yaml" />
+
 
 </launch>

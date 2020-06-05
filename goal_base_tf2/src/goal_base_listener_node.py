@@ -43,8 +43,8 @@ if __name__ == '__main__':
     
     # marker id's
     base_id = 25
-    goal1_id = 35
-    goal2_id = 45
+    goal1_id = 15
+    goal2_id = 35
     
     mode = 1 # 1: Reach to goal1, 2: Reach to goal2
 
@@ -91,7 +91,7 @@ if __name__ == '__main__':
             
             # print (V_x, V_y, W_z)
             # Check whether the goal position is reached
-            if  (V_x <= 0.01 and V_y <= 0.01 and W_z <= 0.02):
+            if  (abs(V_x) <= 0.01 and abs(V_y) <= 0.01 and abs(W_z) <= 0.02):
                 mode = 2 # Set mode 2
                 inp = raw_input("Mode 1 Done, Press Enter to continue, 'e' to exit...")
                 if inp == 'e':

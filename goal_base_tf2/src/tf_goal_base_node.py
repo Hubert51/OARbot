@@ -24,15 +24,17 @@ def handle_goal_base_pose(msg):
         t.transform = detected_transform.transform
         br.sendTransform(t)
         
-        if detected_transform.fiducial_id == 35:
+        if detected_transform.fiducial_id == 15:
             br = tf2_ros.TransformBroadcaster()
             t = geometry_msgs.msg.TransformStamped()
             t.header.stamp = rospy.Time.now()
             t.header.frame_id = "goal_base_id_{}_frame".format(detected_transform.fiducial_id)
             t.child_frame_id = "goal_base_id_{}_added_frame".format(detected_transform.fiducial_id)
             
-            t.transform.translation.x = 0.750
-            t.transform.translation.y = 0.0 
+            # t.transform.translation.x = 0.750
+            # t.transform.translation.y = 0.0
+            t.transform.translation.x = -0.80
+            t.transform.translation.y = 0.51 
             t.transform.translation.z = 0.0 
 
             q = tf_conversions.transformations.quaternion_from_euler(0, 0, 0)
@@ -43,7 +45,7 @@ def handle_goal_base_pose(msg):
 
             br.sendTransform(t)
             
-        if detected_transform.fiducial_id == 45:
+        if detected_transform.fiducial_id == 35:
             br = tf2_ros.TransformBroadcaster()
             t = geometry_msgs.msg.TransformStamped()
             t.header.stamp = rospy.Time.now()
@@ -51,8 +53,8 @@ def handle_goal_base_pose(msg):
             t.child_frame_id = "goal_base_id_{}_added_frame".format(detected_transform.fiducial_id)
             
 
-            t.transform.translation.x = -0.40                               
-            t.transform.translation.y = 0.0 
+            t.transform.translation.x = -0.2 # -0.40                               
+            t.transform.translation.y = 0.7 # 0.0 
             t.transform.translation.z = 0.0 
 
             q = tf_conversions.transformations.quaternion_from_euler(0, 0, 0)

@@ -1,0 +1,9 @@
+<launch>
+	<arg name="pkg_name" value="goal_base_tf2"/>
+	<arg name="node_name" default="goal_base_listener_node_3"/>		
+	<arg name="param_file_name" default="default" doc="Specify a param file. ex:megaman"/>
+	
+    <node pkg="$(arg pkg_name)" type="$(arg node_name).py" name="$(arg node_name)" output="screen">
+    </node>
+    
+</launch>
