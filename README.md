@@ -17,32 +17,47 @@
 - [Dependency](#Dependency)
   - [PointCloud Library](#PointCloud-Library)
   - [Moveit](#Moveit)
-# Moving-Kinova
-ROS packages for Kinova robotic arms and its moving base
+# OARbot
+ROS packages for OARbot which includes Kinova robotic arm and omni-directional moving base
 
-## Robot-Raconteur
-* a middleware for users to control kinova arm
-### Setup
-1. Initialize robot raconteur package in source
+## Installation
+
+The current code is tested on ROS Kinetic. First install the tools and general ros packages such as python-catkin-tools, python-wstool, ros_control and realsense SDK. Second clone this repository and then use the
+`OARbot-dependency.rosinstall` file to pull down the required dependencies. 
+
+```bash
+# install tools and general packages
+sudo apt install python-wstool
+sudo apt-get install ros-kinetic-ddynamic-reconfigure
+sudo apt install ros-kinetic-graph-msgs
+
+
+# Make a ROS WS and cd into the src/ folder
+mkdir -p ~/oarbot_ws/src && cd ~/oarbot_ws/src
+git clone https://github.com/Hubert51/OARbot.git
+
+# Use rosinstall to pull dependencies
+wstool init .
+wstool merge OARbot-dependency.rosinstall
+wstool update
+
+# The moveit package has its own dependency:
+cd moveit
+wstool merge moveit.rosinstall
+wstool update
+
+# check every dependency is installed
+cd ~/oarbot_ws
+rosdep install --from-paths src --ignore-src -r -y
+
+# Build the workspace (do it in Release or RelWithDebInfo)
+catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
-cd ~/ros_ws/src
-mkdir kinova_rr_bridge && cd kniova_rr_bridge 
-```
 
-2. Refer the sample in this project to create [XML file]() and [camke file]() in kinova_rr_bridge.
+## Running
+The packages are organized into "workcells" each with its own geometry. To run the demo in `workcell1`:
 
-### Initialize 
-1. For the control of arm  
-`rosrun kinova_rr_bridge jointController_host.py --port 4567`
-
-2. For open the camera  
-`rosrun kinova_rr_bridge camera_host.py --port 2345`
-
-3. For initialize the code to accept joystick as user input  
-`rosrun kinova_rr_bridge ui_host.py --port 7890`
-
-4. For frame transformation  
-`rosrun kinova_rr_bridge peripherals_host.py --port 1234`
+```bash
 
 ## Aruco-ros
 * Software package and ROS wrappers of the Aruco Augmented Reality marker detector library. Refer [this](http://wiki.ros.org/aruco) for more details
