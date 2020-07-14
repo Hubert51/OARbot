@@ -54,10 +54,8 @@ rosdep install --from-paths src --ignore-src -r -y
 catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
-## Running
+## Running(need to be completed)
 The packages are organized into "workcells" each with its own geometry. To run the demo in `workcell1`:
-
-```bash
 
 ## Aruco-ros
 * Software package and ROS wrappers of the Aruco Augmented Reality marker detector library. Refer [this](http://wiki.ros.org/aruco) for more details
