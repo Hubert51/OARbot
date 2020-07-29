@@ -30,6 +30,8 @@ The current code is tested on ROS Kinetic. First install the tools and general r
 sudo apt install python-wstool
 sudo apt-get install ros-kinetic-ddynamic-reconfigure
 sudo apt install ros-kinetic-graph-msgs
+sudo apt-get install ros-kinetic-catkin python-catkin-tools 
+
 
 
 # Make a ROS WS and cd into the src/ folder
@@ -48,16 +50,16 @@ wstool update
 
 # check every dependency is installed
 cd ~/oarbot_ws
+rosdep init
+rosdep update
 rosdep install --from-paths src --ignore-src -r -y
 
 # Build the workspace (do it in Release or RelWithDebInfo)
 catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
-## Running
+## Running(need to be completed)
 The packages are organized into "workcells" each with its own geometry. To run the demo in `workcell1`:
-
-```bash
 
 ## Aruco-ros
 * Software package and ROS wrappers of the Aruco Augmented Reality marker detector library. Refer [this](http://wiki.ros.org/aruco) for more details
