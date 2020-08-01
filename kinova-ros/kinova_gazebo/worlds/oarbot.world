@@ -12,7 +12,7 @@
       <uri>model://sun</uri>
     </include>
     <model name='table'>
-      <static>0</static>
+      <static>1</static>
       <link name='link'>
         <collision name='surface'>
           <pose frame=''>0 0 1 0 -0 0</pose>
@@ -709,7 +709,7 @@
         </collision>
         <gravity>1</gravity>
       </link>
-      <static>1</static>
+      <static>0</static>
       <allow_auto_disable>1</allow_auto_disable>
       <pose frame=''>-2.44217 0.014899 -0 0 -0 0</pose>
     </model>
