@@ -58,8 +58,24 @@ rosdep install --from-paths src --ignore-src -r -y
 catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
-## Running(need to be completed)
-The packages are organized into "workcells" each with its own geometry. To run the demo in `workcell1`:
+## Manipulation in Gazebo Simulation(need to be completed)
+### Base
+#### First method(terminal input)
+Initialize the gazebo world and control the base with terminal
+```
+# terminal 1:
+roslaunch oarbot_description oarbot.launch
+# terminal 2:
+rosrun teleop_twist_keyboard teleop_twist_keyboard.py
+```
+
+#### Second method(launch file)
+```
+# terminal 1:
+roslaunch oarbot_description oarbotGoToPoint.launch
+# terminal 2:
+rosservice call /go_to_point_switch "data: true" 
+```
 
 ## Aruco-ros
 * Software package and ROS wrappers of the Aruco Augmented Reality marker detector library. Refer [this](http://wiki.ros.org/aruco) for more details
@@ -120,14 +136,20 @@ Optional:
 rosrun kinect2_viewer kinect2_viewer kin1
 rosrun kinect2_viewer kinect2_viewer kin2
 ```
+
+# Change Log:
+* 2020-08-03: Remove the `moveit`, `moveit_msgs`, `moveit_tutorials`, `moveit_visual_tools`  package from the project. 
+
 # Assets
 ## Training-Data
 * [Objects in the fridge](https://drive.google.com/drive/folders/1nERUeKihDFWaOkOLvG9-ORnOm8ObeKN1?usp=sharing)
 
-# Dependency
+# Dependency(Reference)
 1. PointCloud Library
   * [python-pcl github repo](https://github.com/strawlab/python-pcl)
   * [python-pcl website](http://strawlab.github.io/python-pcl/)
 2. Moveit
   * [planning_scene_interface.py](http://docs.ros.org/jade/api/moveit_commander/html/planning__scene__interface_8py_source.html)
   * [moveit_commander.move_group.MoveGroupCommander Class Reference](http://docs.ros.org/jade/api/moveit_commander/html/classmoveit__commander_1_1move__group_1_1MoveGroupCommander.html#a0e95859080ce005ee4d907b8dac7d8e3)
+3. Omni-directional Base
+  * [Mecanum Wheels(video tutorial)](https://www.youtube.com/watch?v=sb7FoOGzb8E&t=319s)
