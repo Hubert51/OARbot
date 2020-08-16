@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: oarbot_description
+    relative_path: robot/oarbot.urdf.xacro
+    xacro_args: "--inorder "
+  SRDF:
+    relative_path: config/summit_xl.srdf
+  CONFIG:
+    author_name: Ruijie Geng
+    author_email: ruijiegeng@gmail.com
+    generated_timestamp: 1596853223
