@@ -1,10 +1,6 @@
 <launch>
 
-  <!-- This file makes it easy to include the settings for sensor managers -->
-
-  <!-- Ruijie: Param for realsense config -->
-  <rosparam command="load" file="$(find j2n6s300_moveit_config)/config/sensors_kinect_depthmap.yaml" />
-
+  <!-- This file makes it easy to include the settings for sensor managers -->  
 
   <!-- Params for the octomap monitor -->
   <!--  <param name="octomap_frame" type="string" value="some frame in which the robot moves" /> -->
@@ -14,9 +10,5 @@
   <!-- Load the robot specific sensor manager; this sets the moveit_sensor_manager ROS parameter -->
   <arg name="moveit_sensor_manager" default="j2n6s300" />
   <include file="$(find j2n6s300_moveit_config)/launch/$(arg moveit_sensor_manager)_moveit_sensor_manager.launch.xml" />
-
-  <!--Perception Pipeline-->
-  <param name="octomap_frame" type="string" value="odom_combined" />
-  <param name="octomap_resolution" type="double" value="0.005" />
-  <param name="max_range" type="double" value="1.0" />
+  
 </launch>

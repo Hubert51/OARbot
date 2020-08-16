@@ -38,7 +38,6 @@ def joint_angle_client(angle_set):
     goal.angles.joint5 = angle_set[4]
     goal.angles.joint6 = angle_set[5]
     goal.angles.joint7 = angle_set[6]
-    print angle_set
 
     client.send_goal(goal)
     if client.wait_for_result(rospy.Duration(20.0)):
