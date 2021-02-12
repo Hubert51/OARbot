@@ -1,5 +1,5 @@
 # copy from kinova-control
-j2n6s300:
+summit_xl:
   effort_finger_trajectory_controller:
     constraints:
       goal_time: 1.0
