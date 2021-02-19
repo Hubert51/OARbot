@@ -1,0 +1,19 @@
+<launch>
+    <arg name="param_file_name" default="default" doc="Specify a param file. ex:megaman." />
+    <arg name="joy_mapper_param_file_name" default="$(arg param_file_name)" doc="Specify a joy_mapper param file. " />
+    
+
+    <!-- joy -->
+    <node pkg="joy" type="joy_node" name="joy" output="screen">
+        <rosparam command="load" file="$(find assistiverobot)/config/joy/joy_node/$(arg param_file_name).yaml"/>
+    </node>
+
+    <!-- joy_mapper_quadstick -->
+    <remap from="joy_mapper_quadstick_node/base_cmd" to="/base_cmd" /> 
+    <remap from="joy_mapper_quadstick_node/step_cmd" to="/step_cmd" />
+    <remap from="joy_mapper_quadstick_node/pose_vel_cmd" to="/j2n6s300_driver/in/cartesian_velocity" />
+    <include file="$(find joy_mapper)/launch/joy_mapper_quadstick_node.launch">
+        <arg name="param_file_name" value="$(arg joy_mapper_param_file_name)"/>
+    </include>
+    
+</launch>

@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Destnation parameter  -->
+  <arg name="des_x" default="-1.75"/>
+  <arg name="des_y" default="-0.75"/>
+  <arg name="des_theta"  default="0"/>
+
+  <param name="des_pos_x" value="$(arg des_x)" />
+  <param name="des_pos_y" value="$(arg des_y)" />
+  <param name="des_pos_yaw" value="$(arg des_theta)" />
+
+  <!-- Load the URDF into ROS parameter server -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find oarbot_description)/robot/oarbot.urdf.xacro' --inorder" />
+  <arg name="kinova_robotType" default="j2n6s300"/>
+  <arg name="kinova_robotName" default="$(arg kinova_robotType)"/>
+  <arg name="use_trajectory_controller" default="false"/>
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="is7dof" default="false"/>
+  <arg name="use_urdf" default="true"/>
+  <arg name="kinova_robotSerial" default="not_set" />
+
+  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find kinova_gazebo)/worlds/oarbot.world"/>
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="headless" value="$(arg headless)"/>
+  </include>
+
+  <!-- Publish joint values -->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+
+  <!-- convert joint states to TF transforms for rviz, etc  -->
+  <!-- robot_state_publisher is for kinova arm controller -->
+  <node name="robot_state_publisher2" pkg="robot_state_publisher" type="state_publisher"/>
+
+  <!-- Spawn model -->
+  <!-- Ruijie: modified respawn tag-->
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-urdf   -model summit -param robot_description
+    -x 0 -y 0 -z 0
+    -J $(arg kinova_robotType)_joint_1 0.0
+        -J $(arg kinova_robotType)_joint_2 2.9
+        -J $(arg kinova_robotType)_joint_3 1.5
+        -J $(arg kinova_robotType)_joint_4 -2.07
+        -J $(arg kinova_robotType)_joint_5 1.4
+        -J $(arg kinova_robotType)_joint_6 0.0
+        -J $(arg kinova_robotType)_joint_finger_1 1.0
+        -J $(arg kinova_robotType)_joint_finger_2 1.0
+        -J $(arg kinova_robotType)_joint_finger_3 1.0"/>
+
+  <!-- ros_control launch file -->
+  <include file="$(find kinova_control)/launch/kinova_control.launch">
+    <arg name="kinova_robotName" value="$(arg kinova_robotName)"/>
+    <arg name="kinova_robotType" value="$(arg kinova_robotType)"/>
+    <arg name="use_trajectory_controller" value="$(arg use_trajectory_controller)"/>
+    <arg name="is7dof" value="$(arg is7dof)"/>
+  </include>
+
+  <node pkg="oarbot_description" type="goToPoint_omni.py" name="go_to_point" output="screen" />
+
+
+
+</launch>
+
