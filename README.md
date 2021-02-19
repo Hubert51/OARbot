@@ -70,9 +70,7 @@ roslaunch oarbot_description oarbotGoToPoint.launch
 # terminal 2:
 rosservice call /go_to_point_switch "data: true" 
 ```
-
 ![](demo/output.gif)
-
 
 <!--
 
