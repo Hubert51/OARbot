@@ -1,2 +1,0 @@
-geometry_msgs/PointStamped min
-geometry_msgs/PointStamped max
