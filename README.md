@@ -70,9 +70,13 @@ roslaunch oarbot_description oarbotGoToPoint.launch
 # terminal 2:
 rosservice call /go_to_point_switch "data: true" 
 ```
+<<<<<<< HEAD
 
 [![Demo move OARbot in gezebo](https://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg)](https://youtu.be/OVhhgOve-hg)
 
+=======
+[![Demo move OARbot in gezebo](https://youtu.be/OVhhgOve-hg)]
+>>>>>>> 63775272879c351991725ed6611616a58b3c2250
 
 <!--
 
