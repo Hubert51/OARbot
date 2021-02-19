@@ -64,11 +64,13 @@ rosrun teleop_twist_keyboard teleop_twist_keyboard.py
 source /opt/ros/kinetic/setup.bash
 source ~/oarbot_ws/devel/setup.bash
 
+## open two terminals
 # terminal 1:
 roslaunch oarbot_description oarbotGoToPoint.launch
 # terminal 2:
 rosservice call /go_to_point_switch "data: true" 
 ```
+<!--
 
 ## Aruco-ros
 * Software package and ROS wrappers of the Aruco Augmented Reality marker detector library. Refer [this](http://wiki.ros.org/aruco) for more details
@@ -146,3 +148,5 @@ rosrun kinect2_viewer kinect2_viewer kin2
   * [moveit_commander.move_group.MoveGroupCommander Class Reference](http://docs.ros.org/jade/api/moveit_commander/html/classmoveit__commander_1_1move__group_1_1MoveGroupCommander.html#a0e95859080ce005ee4d907b8dac7d8e3)
 3. Omni-directional Base
   * [Mecanum Wheels(video tutorial)](https://www.youtube.com/watch?v=sb7FoOGzb8E&t=319s)
+
+  -->
