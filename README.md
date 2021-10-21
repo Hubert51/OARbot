@@ -75,8 +75,7 @@ rosservice call /go_to_point_switch "data: true"
 ### Demo2: Using command line to control the OARbot
 ```bash
 # publish the velocity to the base, the rate is once per second.
-rostopic pub -r 1  /cmd_vel geometry_msgs/Twist 
-"linear:
+rostopic pub -r 1  /cmd_vel geometry_msgs/Twist  "linear:
   x: -0.5
   y: -0.5
   z: 0.0
@@ -85,6 +84,26 @@ angular:
   y: 0.0
   z: 0.0"  
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <!--
 
